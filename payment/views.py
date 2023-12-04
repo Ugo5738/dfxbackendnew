@@ -253,17 +253,3 @@ def email_customer_about_failed_payment(data):
         recipient_list=[customer_email],
         from_email=settings.DEFAULT_FROM_EMAIL,
     )
-
-
-class Test(APIView):
-    def get(self, request):
-        print("This is the default email: ", settings.DEFAULT_FROM_EMAIL)
-        print("This is the TLS: ", settings.EMAIL_USE_TLS)
-        send_mail(
-            subject="Order Fulfilled",
-            message=f"Thank you for your purchase. Your purchased items are on their way to be delivered to you.",
-            recipient_list=["dfxgadgetshub@gmail.com"],
-            from_email=settings.DEFAULT_FROM_EMAIL,
-        )
-
-        return Response({"done": "done"})
