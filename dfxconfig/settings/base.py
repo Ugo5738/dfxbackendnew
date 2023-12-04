@@ -125,13 +125,12 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "account.User"
 
 # ==> CORS
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:5173",
-#     "http://localhost:5174",  
-#     "https://dfxfrontend-4b366e1bea94.herokuapp.com"
-# ]
-# CORS_ALLOWED_CREDENTIALS = True
-CORS_ALLOW_ALL_ORIGINS = True
+cors_origins = config('CORS_ORIGINS', '')
+CORS_ALLOWED_ORIGINS = cors_origins.split(',') if cors_origins else []
+CORS_ALLOWED_ORIGINS = [origin for origin in CORS_ALLOWED_ORIGINS if origin]
+
+CORS_ALLOWED_CREDENTIALS = True
+# CORS_ALLOW_ALL_ORIGINS = True
 
 # ==> CONSTANTS
 CART_SESSION_ID = secrets.token_urlsafe(16)
