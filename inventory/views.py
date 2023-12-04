@@ -33,6 +33,8 @@ class StandardResultsSetPagination(PageNumberPagination):
 class TrendingCategoriesView(APIView):
     @swagger_auto_schema(operation_description="Retrieve the list of trending categories. This data is cached for 1 hour for performance optimization.")
     def get(self, request):
+        from django.conf import settings
+        print(settings.CORS_ALLOWED_ORIGINS)
         data = cache.get('trending_categories')
 
         if not data:
