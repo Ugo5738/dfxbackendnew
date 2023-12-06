@@ -360,8 +360,21 @@ class ProductInventory(models.Model):
     product_type = models.ForeignKey(ProductType, related_name="product_type", on_delete=models.PROTECT)
     product = models.ForeignKey(Product, related_name="product", on_delete=models.PROTECT)
     brand = models.ForeignKey(Brand, related_name="brand", on_delete=models.PROTECT)
-    color = models.ForeignKey(Color, related_name="color", on_delete=models.PROTECT, db_index=True)
-    storage_size = models.ForeignKey(Storage, related_name="storage", on_delete=models.PROTECT, null=True, blank=True)
+    color = models.ForeignKey(
+        Color, 
+        related_name="color", 
+        on_delete=models.PROTECT, 
+        db_index=True, 
+        null=True, 
+        blank=True
+    )
+    storage_size = models.ForeignKey(
+        Storage, 
+        related_name="storage", 
+        on_delete=models.PROTECT, 
+        null=True, 
+        blank=True
+    )
     attribute_values = models.ManyToManyField(
         ProductAttributeValue,
         related_name="product_attribute_values",
