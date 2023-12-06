@@ -1,0 +1,29 @@
+{% extends 'update/base.html' %} 
+{% block content %}
+
+<main>
+  <div class="container">
+    <div class="my-5">
+      <div class="row">
+        <div class="col-sm-2 col-md-4"></div>
+        <div class="col-sm-8 col-md-4">
+          <div class="my-4 p-3 border-muted shadow-lg">
+            <div class="text-center">
+              <h3>Product Updated</h3>
+              <div class="my-3 mt-5">
+                This product has been updated into the database.
+                <hr>
+                <a href="{% url 'update' %}">Update another product</a>
+                <br> 
+                <br>
+                <a href="{% url 'dfx:home' %}">Head Back to home</a>  
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+{% endblock %}

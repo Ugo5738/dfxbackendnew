@@ -1,0 +1,39 @@
+/* external css: flickity.css */
+* {
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: sans-serif;
+}
+
+.gallery {
+  background: #EEE;
+}
+
+.gallery-cell {
+  margin-left: 2rem;
+  background: #8C8;
+  counter-increment: gallery-cell;
+}
+
+/* cell number */
+.gallery-cell:before {
+  display: block;
+  text-align: center;
+  content: counter(gallery-cell);
+  line-height: 500px;
+  font-size: 80px;
+  color: white;
+}
+
+/* @media (max-width: 768px) {
+  .gallery-cell:before {
+    height: 300px;
+    /* max-height: 300px; */
+    /* object-fit: contain; */
+  }
+} */
+
+/*# sourceMappingURL=product-image.css.map */

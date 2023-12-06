@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "sourceRoot": "",
+  "sources": [
+    "../scss/product-image.scss"
+  ],
+  "names": [],
+  "mappings": "AAEA;AAEA;EACE;EACA;;;AAGF;EAAO;;;AAEP;EAEE;;;AAGF;EAIE;EACA;EACA;;;AAGF;AACA;EACE;EACA;EACA;EACA;EACA;EACA",
+  "file": "product-image.css"
+}

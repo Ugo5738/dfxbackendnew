@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "sourceRoot": "",
+  "sources": [
+    "../scss/carousel.scss"
+  ],
+  "names": [],
+  "mappings": "AAAA;AAEA;EACE;EACA;;;AAGF;EAAO;;;AAEP;EACE;EACA;;;AAGF;EACE;EACA;EACA;EACA;EACA;;;AAGF;EACE;;;AAGF;AACA;EACE;EACA;EACA;EACA;EACA;EACA",
+  "file": "carousel.css"
+}
