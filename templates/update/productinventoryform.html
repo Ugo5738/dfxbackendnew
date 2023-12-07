@@ -1,0 +1,132 @@
+{% extends 'update/base.html' %} 
+{% block content %}
+
+<main>
+    <div class="container">
+        <div class="my-md-5 my-3"> 
+            <div class="row">
+                <!-- <div class="col-sm-2 col-md-4"></div> -->
+                <!-- <div class="col-sm-8 col-md-4"> -->
+                <div class="col-sm-6 mx-auto">
+        
+                    <!-- <div class="my-4 p-3 border-muted shadow-sm"> -->
+                    <div class="px-3 py-5 border border-muted rounded-2 shadow-sm">
+                        <div class="text-center">
+                            <h3 class="text-muted">Upload a Product</h3>
+                        </div>
+                        <div class="mt-5">
+                            <form method="POST" class="row me-2" enctype="multipart/form-data">
+                                {% csrf_token %} 
+                                {{ form }}
+
+                                {{ price_formset.management_form }}
+                                <div id="price_forms">
+                                    {% for form in price_formset %}
+                                        {{ form }}
+                                    {% endfor %}
+                                </div>
+
+                                <!-- <div class="col-12"> -->
+                                    <button id="checkout-button" class="btn btn-primary w-100 mt-4 ms-2 py-2" type="submit">Upload</button>
+                                <!-- </div>                                            -->
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const storageSizesSelect = document.getElementById('id_storage_sizes');
+        const colorsSelect = document.getElementById('id_colors');
+        const priceFormsContainer = document.getElementById('price_forms');
+        const totalFormsInput = document.getElementById('id_form-TOTAL_FORMS');
+        
+        function updatePriceForms() {
+            var selectedStorageSizes = Array.from(document.querySelectorAll('.storage-size:checked')).map(input => ({
+                id: input.value,
+                name: input.getAttribute('data-name')
+            }));
+            var selectedColors = Array.from(document.querySelectorAll('.color:checked')).map(input => ({
+                id: input.value,
+                name: input.getAttribute('data-name')
+            }));
+    
+            // Clear existing forms
+            priceFormsContainer.innerHTML = '';
+    
+            let formIndex = 0;
+            if (selectedStorageSizes.length > 0) {
+                // Create forms for each combination of storage size and color
+                for (let storageSize of selectedStorageSizes) {
+                    for (let color of selectedColors) {
+                        const form = createPriceForm(formIndex, storageSize, color);
+                        priceFormsContainer.appendChild(form);
+                        formIndex++;
+                    }
+                }
+            } else if (selectedColors.length > 0) {
+                // If no storage sizes but colors are selected, create forms for each color
+                for (let color of selectedColors) {
+                    const form = createPriceForm(formIndex, null, color);
+                    priceFormsContainer.appendChild(form);
+                    formIndex++;
+                }
+            }
+    
+            // Update the TOTAL_FORMS input
+            totalFormsInput.value = formIndex;
+            console.log("formIndex: ", formIndex);
+        }
+    
+        function createPriceForm(index, storageSize, color) {
+            const formContainer = document.createElement('div');
+    
+            // Adding the storage size field if available
+            if (storageSize) {
+                formContainer.innerHTML += `<label for="form-${index}-storage_size">Storage Size:</label>`;
+                formContainer.innerHTML += `<input type="hidden" name="form-${index}-storage_size" value="${storageSize.id}">`;
+                formContainer.innerHTML += `<span>${storageSize.name}</span>`;
+            } else {
+                formContainer.innerHTML += `<input type="hidden" name="form-${index}-storage_size" value="">`;
+            }
+    
+            // Adding the color field
+            formContainer.innerHTML += `<label for="form-${index}-color">Color:</label>`;
+            formContainer.innerHTML += `<input type="hidden" name="form-${index}-color" value="${color.id}">`;
+            formContainer.innerHTML += `<span>${color.name}</span>`;
+    
+            // Add retail_price, store_price, discount_store_price, sale_price fields
+            formContainer.innerHTML += `<label for="form-${index}-retail_price">Retail Price:</label>`;
+            formContainer.innerHTML += `<input type="number" name="form-${index}-retail_price" step="0.01">`;
+    
+            formContainer.innerHTML += `<label for="form-${index}-store_price">Store Price:</label>`;
+            formContainer.innerHTML += `<input type="number" name="form-${index}-store_price" step="0.01">`;
+    
+            formContainer.innerHTML += `<label for="form-${index}-discount_store_price">Discount Store Price:</label>`;
+            formContainer.innerHTML += `<input type="number" name="form-${index}-discount_store_price" step="0.01">`;
+    
+            formContainer.innerHTML += `<label for="form-${index}-sale_price">Sale Price:</label>`;
+            formContainer.innerHTML += `<input type="number" name="form-${index}-sale_price" step="0.01">`;
+    
+            // Add image upload fields
+            for (let i = 1; i <= 3; i++) {
+                formContainer.innerHTML += `<label for="form-${index}-image_${i}">Image ${i}:</label>`;
+                formContainer.innerHTML += `<input type="file" name="form-${index}-image_${i}" accept="image/*">`;
+                formContainer.innerHTML += `<label for="form-${index}-image_${i}_name">Image ${i} Alt Text:</label>`;
+                formContainer.innerHTML += `<input type="text" name="form-${index}-image_${i}_name">`;
+            }
+    
+            return formContainer;
+        }
+        
+        storageSizesSelect.addEventListener('change', updatePriceForms);
+        colorsSelect.addEventListener('change', updatePriceForms);
+    
+        // Initial update
+        updatePriceForms();
+    });
+</script>    
+{% endblock content %}

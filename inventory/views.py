@@ -164,189 +164,6 @@ class BrandListView(generics.ListAPIView):
 
 
 # -------------------- UPDATE -----------------------
-def remove_special_characters(string):
-    return re.sub(r"[^\w\s]", "", string)
-
-
-class UpdateView(View):
-    template_name = "update/updateform.html"
-
-    def get(self, request, *args, **kwargs):
-        form = forms.ProductInventoryForm()
-        context = {"form": form}
-
-        return render(request, self.template_name, context)
-
-    def post(self, request, *args, **kwargs):
-        form = forms.ProductInventoryForm(request.POST or None, request.FILES)
-        
-        if form.is_valid():
-            # category
-            category_name = form.cleaned_data.get("category_name")
-            category_slug = remove_special_characters(category_name).replace(" ", "-")         
-            category, created = Category.objects.get_or_create(
-                name=category_name,
-                defaults={
-                    'slug': category_slug,
-                }
-            )
-            
-            # product
-            product_name = form.cleaned_data.get("product_name")
-            product_description = form.cleaned_data.get("product_description")
-            product_slug = remove_special_characters(product_name).replace(" ", "-")
-            
-            if Product.objects.last():
-                latest_product = Product.objects.last()
-                latest_product_web_id = latest_product.web_id
-            else: 
-                latest_product_web_id = 00000000
-            product_web_id = f"{int(latest_product_web_id) + 1}"
-            new_product = Product(
-                web_id=product_web_id,
-                slug=product_slug,
-                name=product_name,
-                description=product_description,
-            )
-            new_product.save()
-            new_product.category.set([category])
-
-            # product type
-            product_type_name = form.cleaned_data.get("product_type_name")
-            product_type, product_type_created = ProductType.objects.get_or_create(
-                name=product_type_name
-            )
-            if product_type_created:
-                product_type.save()
-
-            # Brand
-            brand_name = form.cleaned_data.get("brand_name")
-            product_brand, product_brand_created = Brand.objects.get_or_create(name=brand_name)
-            if product_brand_created:
-                product_brand.save()
-
-            # Color
-            color_name = form.cleaned_data.get("color_name")
-            hex_code = utils.COLOR_CHOICES[color_name]
-            product_color, product_color_created = Color.objects.get_or_create(
-                name=color_name, hex_code=hex_code
-            )
-            if product_color_created:
-                product_color.save()
-
-            # Storage
-            storage_size = form.cleaned_data.get("storage_size")
-            product_storage_size, product_storage_size_created = Storage.objects.get_or_create(
-                size=storage_size
-            )
-            if product_storage_size_created:
-                product_storage_size.save()
-
-            # Product Inventory
-            product_default = form.cleaned_data.get("product_default")
-            product_retail_price = form.cleaned_data.get("product_retail_price")
-            product_store_price = form.cleaned_data.get("product_store_price")
-            product_discount_store_price = form.cleaned_data.get("product_discount_store_price")
-            product_sale_price = form.cleaned_data.get("product_sale_price")
-            weight = form.cleaned_data.get("weight")
-            stock_units = form.cleaned_data.get("stock_units")
-            
-            if ProductInventory.objects.last():
-                latest_inventory = ProductInventory.objects.last()
-                latest_inventory_sku = int(latest_inventory.sku)
-                latest_inventory_upc = int(latest_inventory.upc)
-            else:
-                latest_inventory_sku = 000000
-                latest_inventory_upc = 000000
-            SKU = f"{latest_inventory_sku + 1}"
-            UPC = f"{latest_inventory_upc + 1}"
-            new_inventory = ProductInventory(
-                sku=SKU,
-                upc=UPC,
-                is_default=product_default,
-                retail_price=product_retail_price,
-                store_price=product_store_price,
-                discount_store_price=product_discount_store_price,
-                sale_price=product_sale_price,
-                weight=weight,
-                product_type=product_type,
-                product=new_product,
-                brand=product_brand,
-                color=product_color,
-                storage_size=product_storage_size,
-            )
-
-            new_inventory.save()
-
-            # Product Attribute
-            attributes = {
-                "wireless_carrier": "Wireless Carrier",
-                "operating_system": "Operating System",
-                "cellular_technology": "Cellular Technology",
-                "memory_storage_capacity": "Memory Storage Capacity",
-                "connectivity_technology": "Connectivity Technology",
-                "screen_size": "Screen Size",
-            }
-
-            for product_type_attribute_name_frontend, product_type_attribute_name in attributes.items():
-                product_type_attribute_value = form.cleaned_data.get(product_type_attribute_name_frontend)
-
-                if product_type_attribute_value:
-                    try:
-                        product_type_attribute_description = utils.ATTRIBUTE_CHOICES[product_type_attribute_name_frontend]
-                    except:
-                        product_type_attribute_description = "There is no description for this attribute"
-                    (
-                        product_type_attribute,
-                        product_type_attribute_created,
-                    ) = ProductAttribute.objects.get_or_create(
-                        name=product_type_attribute_name, description=product_type_attribute_description
-                    )
-                    if product_type_attribute_created:
-                        product_type_attribute.save()
-                    product_type.product_type_attributes.add(product_type_attribute)
-
-                    product_attribute_value = ProductAttributeValue(
-                        product_attribute=product_type_attribute, attribute_value=product_type_attribute_value
-                    )
-                    # product_attribute_value.product_attribute = product_type_attribute
-                    product_attribute_value.save()
-
-                    new_inventory.attribute_values.add(product_attribute_value)
-                    new_inventory.save()
-
-            # Product Stock
-            product_stock = Stock(product_inventory=new_inventory, units=stock_units)
-            product_stock.save()
-
-            # Product Media
-            image_1 = form.cleaned_data.get("image_1")
-            image_2 = form.cleaned_data.get("image_2")
-            image_3 = form.cleaned_data.get("image_3")
-            image_4 = form.cleaned_data.get("image_4")
-            image_name = form.cleaned_data.get("image_name")
-
-            if image_1:
-                Media.objects.create(
-                    product_inventory=new_inventory, image=image_1, alt_text=image_name, is_feature=True
-                )
-            if image_2:
-                Media.objects.create(
-                    product_inventory=new_inventory, image=image_2, alt_text=image_name, is_feature=False
-                )
-            if image_3:
-                Media.objects.create(
-                    product_inventory=new_inventory, image=image_3, alt_text=image_name, is_feature=False
-                )
-            if image_4:
-                Media.objects.create(
-                    product_inventory=new_inventory, image=image_4, alt_text=image_name, is_feature=False
-                )
-        else:
-            print("form not valid")
-        return redirect("update_done")
-
-
 class UpdateDoneView(TemplateView):
     template_name = "update/update_done.html"
 
@@ -365,6 +182,7 @@ def add_product(request):
             product.web_id = new_web_id
             product.slug = slugify(product.name)  # Generate slug from the new product's name
             product.save()
+            form.save_m2m()  # Save many-to-many data
             
             return redirect("update_done")  # Ensure this URL is defined in your urls.py
     else:
@@ -399,29 +217,56 @@ def generate_unique_identifiers():
 def add_product_inventory(request):
     if request.method == 'POST':
         form = forms.ProductInventoryForm(request.POST, request.FILES)
+
         if form.is_valid():
             product_inventory = form.save(commit=False)
-            storage_sizes = form.cleaned_data['storage_sizes']
-            colors = form.cleaned_data['colors']
+            price_formset = forms.ProductPriceFormSet(request.POST, request.FILES)
 
-            for storage_size in storage_sizes:
-                for color in colors:
-                    # Generate unique SKU and UPC
+            if all(price_form.is_valid() for price_form in price_formset):
+                for price_form in price_formset:
                     new_sku, new_upc = generate_unique_identifiers()
-                    ProductInventory.objects.create(
-                        product=product_inventory.product,
-                        brand=product_inventory.brand,
-                        storage_size=storage_size,
-                        color=color,
+                    new_inventory = ProductInventory.objects.create(
                         sku=new_sku,
                         upc=new_upc,
-                        # Include other fields as needed
+                        name=product_inventory.name,
+                        seo_feature=product_inventory.seo_feature,
+                        product_type=product_inventory.product_type,
+                        product=product_inventory.product,
+                        brand=product_inventory.brand,
+                        is_active=product_inventory.is_active,
+                        is_default=product_inventory.is_default,
+                        condition=product_inventory.condition,
+                        weight=product_inventory.weight,
+                        shipping=product_inventory.shipping,
+                        onsite_pickup=product_inventory.onsite_pickup,
+                        color=price_form.cleaned_data['color'],
+                        storage_size=price_form.cleaned_data['storage_size'],
+                        retail_price=price_form.cleaned_data['retail_price'],
+                        store_price=price_form.cleaned_data['store_price'],
+                        discount_store_price=price_form.cleaned_data['discount_store_price'],
+                        sale_price=price_form.cleaned_data['sale_price'],   
                     )
-            return redirect('update_done')
+                    new_inventory.save()
+
+                    # Save images for this specific inventory item
+                    for image_num in range(1, 4):
+                        image = price_form.cleaned_data.get(f"image_{image_num}")
+                        image_name = price_form.cleaned_data.get(f"image_{image_num}_name")
+
+                        if image:
+                            Media.objects.create(
+                                product_inventory=new_inventory,
+                                image=image,
+                                alt_text=image_name,
+                                is_feature=(image_num == 1)
+                            )
+                            
+                return redirect('update_done')
     else:
         form = forms.ProductInventoryForm()
+        price_formset = forms.ProductPriceFormSet()
 
-    return render(request, 'update/creation.html', {'form': form})
+    return render(request, 'update/productinventoryform.html', {'form': form, 'price_formset': price_formset})
 
 
 def add_product_attribute_value(request):

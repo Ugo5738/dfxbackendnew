@@ -23,10 +23,22 @@ class CategoryForm(forms.ModelForm):
 
     def save(self, commit=True):
         instance = super(CategoryForm, self).save(commit=False)
-        # Automatically generate slug from name
         instance.slug = slugify(instance.name)
+
         if commit:
             instance.save()
+            # Handle the parent for ProductType
+            product_type_parent = None
+            if instance.parent:
+                # Try to get the corresponding ProductType for the parent Category, if it exists
+                product_type_parent = models.ProductType.objects.filter(name=instance.parent.name).first()
+
+            # Create or update the corresponding ProductType
+            models.ProductType.objects.update_or_create(
+                name=instance.name,
+                defaults={'parent': product_type_parent}
+            )
+
         return instance
 
     class Meta:
@@ -34,26 +46,56 @@ class CategoryForm(forms.ModelForm):
         fields = ['name', 'is_active', 'is_trending', 'parent']
 
 
-class ProductInventoryForm(forms.ModelForm):
-    storage_sizes = forms.ModelMultipleChoiceField(
-        queryset=models.Storage.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
-        required=False
-    )
-    colors = forms.ModelMultipleChoiceField(
-        queryset=models.Color.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
-        required=False
-    )
+class ProductPriceForm(forms.Form):
+    storage_size = forms.ModelChoiceField(queryset=models.Storage.objects.all(), required=False)
+    color = forms.ModelChoiceField(queryset=models.Color.objects.all(), required=False)
+    image_1 = forms.ImageField(required=False, label='Image 1')
+    image_1_name = forms.CharField(required=False, label='Image 1 Alt Text')
+    image_2 = forms.ImageField(required=False, label='Image 2')
+    image_2_name = forms.CharField(required=False, label='Image 2 Alt Text')
+    image_3 = forms.ImageField(required=False, label='Image 3')
+    image_3_name = forms.CharField(required=False, label='Image 3 Alt Text')
+    retail_price = forms.DecimalField(max_digits=9, decimal_places=2)
+    store_price = forms.DecimalField(max_digits=9, decimal_places=2)
+    discount_store_price = forms.DecimalField(max_digits=9, decimal_places=2)
+    sale_price = forms.DecimalField(max_digits=9, decimal_places=2, required=False)
 
+ProductPriceFormSet = forms.formset_factory(ProductPriceForm, extra=0)
+
+
+class CustomCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
+    def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
+        attrs = attrs or {}
+        attrs.update({'class': 'storage-size' if name == 'storage_sizes' else 'color'})
+        option = super().create_option(name, value, label, selected, index, subindex=subindex, attrs=attrs)
+        option['attrs']['data-name'] = label
+        return option
+    
+
+class ProductInventoryForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ProductInventoryForm, self).__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
             field.help_text = None
 
+    storage_sizes = forms.ModelMultipleChoiceField(
+        queryset=models.Storage.objects.all(),
+        widget=CustomCheckboxSelectMultiple,
+        required=False
+    )
+    colors = forms.ModelMultipleChoiceField(
+        queryset=models.Color.objects.all(),
+        widget=CustomCheckboxSelectMultiple,
+        required=False
+    )
+
     class Meta:
         model = models.ProductInventory
-        exclude = ['sku', 'upc', 'storage_size', 'color', 'shipping', 'onsite_pickup']
+        exclude = [
+            'sku', 'upc', 'storage_size', 'color', 'attribute_values', 
+            'retail_price', 'store_price', 'discount_store_price', 'sale_price',
+            'shipping', 'onsite_pickup'
+        ]
 
 
 class ProductAttributeValueForm(forms.ModelForm):

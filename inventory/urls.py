@@ -15,15 +15,14 @@ urlpatterns = [
     # -------------------- SEARCH SUGGESTIONS APIs --------------------
     path('product-suggestions/', views.ProductSuggestionView.as_view(), name='product-suggestions'),
 
-    # -------------------- INVENTORY UPDATE APIs --------------------
-    path('update/', views.UpdateView.as_view(), name="update"),
-    path('update-done/', views.UpdateDoneView.as_view(), name="update_done"),
-    
+    # -------------------- INVENTORY UPDATE APIs --------------------    
     path('add-product/', views.add_product, name='add_product'),
     path('add-category/', views.add_category, name='add_category'),
     path('add-product-inventory/', views.add_product_inventory, name='add_product_inventory'),
     path('add-product-attribute-value/', views.add_product_attribute_value, name='add_product_attribute_value'),
     
+    path('update-done/', views.UpdateDoneView.as_view(), name="update_done"),
+
     # -------------------- TEST APIs --------------------
     path('test/', views.Test.as_view(), name="test")
 ]
