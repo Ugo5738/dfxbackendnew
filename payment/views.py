@@ -5,6 +5,7 @@ import json
 import os
 import random
 
+from decouple import config
 from django.conf import settings
 from django.core.mail import send_mail
 from django.http import JsonResponse
@@ -58,14 +59,15 @@ class InitiatePayment(APIView):
 
     def post(self, request, format=None):
         try:
-            # self.paystack_secret_key = os.environ.get('PAYSTACK_SECRET_KEY')
+            self.paystack_secret_key = config('PAYSTACK_SECRET_KEY')
+            print(self.paystack_secret_key)
             # self.allowed_ips = ['52.31.139.75', '52.49.173.169', '52.214.14.220']
 
             payload = json.loads(request.body.decode('utf-8'))
             event = payload.get('event')
             data = payload.get('data', {})
 
-            print("Request: ", request.data)
+            print("Request: ", request.body)
             print("Event: ", event)
             print("Data: ", data)
             # # Validate the paystack webhook signature
