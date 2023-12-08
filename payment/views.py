@@ -58,19 +58,28 @@ class InitiatePayment(APIView):
     #         return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def post(self, request, format=None):
-        try:
+        payload = json.loads(request.body.decode('utf-8'))
+        event = payload.get('event')
+        data = payload.get('data', {})
+
+        print("Request: ", request)
+        print("Payload: ", payload)
+        print("Event: ", event)
+        print("Data: ", data)
+        return JsonResponse({'status': 'test'})
+        # try:
             # self.paystack_secret_key = config('PAYSTACK_SECRET_KEY')
             # print(self.paystack_secret_key)
             # self.allowed_ips = ['52.31.139.75', '52.49.173.169', '52.214.14.220']
 
-            payload = json.loads(request.body.decode('utf-8'))
-            event = payload.get('event')
-            data = payload.get('data', {})
+            # payload = json.loads(request.body.decode('utf-8'))
+            # event = payload.get('event')
+            # data = payload.get('data', {})
 
-            print("Request: ", request)
-            print("Payload: ", payload)
-            print("Event: ", event)
-            print("Data: ", data)
+            # print("Request: ", request)
+            # print("Payload: ", payload)
+            # print("Event: ", event)
+            # print("Data: ", data)
             # # Validate the paystack webhook signature
             # byte_data = json.dumps(payload, sort_keys=True).encode('utf-8')
             # calculated_hash = self.calculate_signature(byte_data)
@@ -92,12 +101,12 @@ class InitiatePayment(APIView):
             # else:
             #     # This means the request is not from paystack
             #     return JsonResponse({'status': 'error', 'message': 'Invalid signature provided. Kindly provide the right payment validators'})
-            return JsonResponse({'status': 'test'})
-        except json.JSONDecodeError:
-            return JsonResponse({'status': 'error', 'message': 'Invalid body data. Must be of type Json'})
-        except Exception as e:
-            # Handle exceptions appropriately
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+        # except json.JSONDecodeError:
+        #     return JsonResponse({'status': 'error', 'message': 'Invalid body data. Must be of type Json'})
+        # except Exception as e:
+        #     # Handle exceptions appropriately
+        #     return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     def calculate_signature(self, data):
         # This assumes you have self.paystack_secret_key defined in your class
