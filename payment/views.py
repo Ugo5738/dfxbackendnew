@@ -77,6 +77,7 @@ class InitiatePayment(APIView):
                     return JsonResponse({'status': 'error', 'message': 'Access Denied: Your IP Address is not allowed'})
                     
                 if event == 'charge.success':
+                    print("First fulfilling...")
                     fulfill_order(data)
                     return JsonResponse({'status': 'Transaction success'})
                 elif event == "transfer.failed":
@@ -166,8 +167,8 @@ def fulfill_order(data):
     #     }
     
     print("Fulfilling order")
-    customer_email = data["customer"].get("email")
-    customer_email = "admin@admin.com"
+    # customer_email = data["customer"].get("email")
+    customer_email = "dfxgadgetshub@gmail.com"
     charge_id = data.get("id") 
     reference = data.get("reference") 
     amount = data.get("amount")
