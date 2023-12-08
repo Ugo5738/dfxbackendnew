@@ -88,6 +88,7 @@ class InitiatePayment(APIView):
             # else:
             #     # This means the request is not from paystack
             #     return JsonResponse({'status': 'error', 'message': 'Invalid signature provided. Kindly provide the right payment validators'})
+            return JsonResponse({'status': 'test'})
         except json.JSONDecodeError:
             return JsonResponse({'status': 'error', 'message': 'Invalid body data. Must be of type Json'})
         except Exception as e:
