@@ -65,6 +65,7 @@ class InitiatePayment(APIView):
             event = payload.get('event')
             data = payload.get('data', {})
 
+            print("Request: ", request.data)
             print("Event: ", event)
             print("Data: ", data)
             # # Validate the paystack webhook signature
