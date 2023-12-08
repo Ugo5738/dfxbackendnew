@@ -25,7 +25,7 @@ from payment.models import Payment
 
 
 class InitiatePayment(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     # def generate_tx_ref(self):
     #     """Generate a unique transaction reference"""
@@ -58,34 +58,36 @@ class InitiatePayment(APIView):
 
     def post(self, request, format=None):
         try:
-            self.paystack_secret_key = os.environ.get('PAYSTACK_SECRET_KEY')
-            self.allowed_ips = ['52.31.139.75', '52.49.173.169', '52.214.14.220']
+            # self.paystack_secret_key = os.environ.get('PAYSTACK_SECRET_KEY')
+            # self.allowed_ips = ['52.31.139.75', '52.49.173.169', '52.214.14.220']
 
             payload = json.loads(request.body.decode('utf-8'))
             event = payload.get('event')
             data = payload.get('data', {})
 
-            # Validate the paystack webhook signature
-            byte_data = json.dumps(payload, sort_keys=True).encode('utf-8')
-            calculated_hash = self.calculate_signature(byte_data)
-            provided_hash = request.headers.get('X-Paystack-Signature')
+            print("Event: ", event)
+            print("Data: ", data)
+            # # Validate the paystack webhook signature
+            # byte_data = json.dumps(payload, sort_keys=True).encode('utf-8')
+            # calculated_hash = self.calculate_signature(byte_data)
+            # provided_hash = request.headers.get('X-Paystack-Signature')
 
-            if calculated_hash != provided_hash:
-                client_ip = request.META.get('REMOTE_ADDR', '')
+            # if calculated_hash != provided_hash:
+            #     client_ip = request.META.get('REMOTE_ADDR', '')
 
-                if client_ip not in self.allowed_ips:
-                    return JsonResponse({'status': 'error', 'message': 'Access Denied: Your IP Address is not allowed'})
+            #     if client_ip not in self.allowed_ips:
+            #         return JsonResponse({'status': 'error', 'message': 'Access Denied: Your IP Address is not allowed'})
                     
-                if event == 'charge.success':
-                    print("First fulfilling...")
-                    fulfill_order(data)
-                    return JsonResponse({'status': 'Transaction success'})
-                elif event == "transfer.failed":
-                    email_customer_about_failed_payment(data)
-                    return JsonResponse({'status': 'Transaction Failed'})
-            else:
-                # This means the request is not from paystack
-                return JsonResponse({'status': 'error', 'message': 'Invalid signature provided. Kindly provide the right payment validators'})
+            #     if event == 'charge.success':
+            #         print("First fulfilling...")
+            #         fulfill_order(data)
+            #         return JsonResponse({'status': 'Transaction success'})
+            #     elif event == "transfer.failed":
+            #         email_customer_about_failed_payment(data)
+            #         return JsonResponse({'status': 'Transaction Failed'})
+            # else:
+            #     # This means the request is not from paystack
+            #     return JsonResponse({'status': 'error', 'message': 'Invalid signature provided. Kindly provide the right payment validators'})
         except json.JSONDecodeError:
             return JsonResponse({'status': 'error', 'message': 'Invalid body data. Must be of type Json'})
         except Exception as e:
