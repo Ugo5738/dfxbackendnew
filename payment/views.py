@@ -5,6 +5,7 @@ import json
 import os
 import random
 
+import requests
 from decouple import config
 from django.conf import settings
 from django.core.mail import send_mail
@@ -58,7 +59,13 @@ class InitiatePayment(APIView):
     #         return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def post(self, request, format=None):
+        verify_base = f"https://api.paystack.co/transaction/verify/"
+        
         payload = json.loads(request.body.decode('utf-8'))
+        trans_status = payload.get('status')
+        trans_message = payload.get('message')
+        reference = payload.get('reference')
+
         event = payload.get('event')
         data = payload.get('data', {})
 
@@ -66,6 +73,31 @@ class InitiatePayment(APIView):
         print("Payload: ", payload)
         print("Event: ", event)
         print("Data: ", data)
+
+        {
+            'reference': 'T920054631601813', 
+            'trans': '3355246196', 
+            'status': 'success', 
+            'message': 'Approved', 
+            'transaction': '3355246196', 
+            'trxref': 'T920054631601813', 
+            'redirecturl': '?trxref=T920054631601813&reference=T920054631601813'
+        }
+
+        if trans_status == "success" and trans_message == "Approved":
+            url = verify_base + f"{reference}"
+            paystack_secret_key = config('PAYSTACK_SECRET_KEY')
+            print("This is the secret key: ", paystack_secret_key)
+            headers = {
+                "Authorization": f"Bearer {paystack_secret_key}",
+            }
+            response = requests.get(url, headers=headers)
+            if response.status_code == 200:
+                # Transaction details are successfully retrieved
+                return JsonResponse(response.json())
+            else:
+                # Handle errors or unexpected responses
+                return JsonResponse({'error': 'Failed to verify transaction'}, status=500)
         return JsonResponse({'status': 'test'})
         # try:
             # self.paystack_secret_key = config('PAYSTACK_SECRET_KEY')
