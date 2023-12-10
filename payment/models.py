@@ -32,5 +32,5 @@ class Payment(models.Model):
         super().save(*args, **kwargs)
     
     def amount_value(self):
-        return int(self.amount * 100)
+        return int(self.amount)
 
