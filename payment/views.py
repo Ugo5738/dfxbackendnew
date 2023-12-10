@@ -66,14 +66,6 @@ class InitiatePayment(APIView):
         trans_message = payload.get('message')
         reference = payload.get('reference')
 
-        event = payload.get('event')
-        data = payload.get('data', {})
-
-        print("Request: ", request)
-        print("Payload: ", payload)
-        print("Event: ", event)
-        print("Data: ", data)
-
         if trans_status == "success" and trans_message == "Approved":
             url = verify_base + f"{reference}"
 
@@ -84,7 +76,7 @@ class InitiatePayment(APIView):
             
             response = requests.get(url, headers=headers)
             if response.status_code == 200:
-                # Transaction details are successfully retrieved
+                print(response.json())
                 return JsonResponse(response.json())
             else:
                 # Handle errors or unexpected responses
