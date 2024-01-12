@@ -283,7 +283,7 @@ def add_product_attribute_value(request):
 
 
 # -------------------- TEST -----------------------
-class Test(APIView):
+class PopulateData(APIView):
     def get(self, request):
         
         populate_data()

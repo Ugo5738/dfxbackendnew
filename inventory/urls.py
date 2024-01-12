@@ -24,5 +24,5 @@ urlpatterns = [
     path('update-done/', views.UpdateDoneView.as_view(), name="update_done"),
 
     # -------------------- TEST APIs --------------------
-    path('test/', views.Test.as_view(), name="test")
+    path('populate-data/', views.PopulateData.as_view(), name="populate_data")
 ]

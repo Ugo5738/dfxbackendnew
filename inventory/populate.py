@@ -475,17 +475,17 @@ def add_banner_images():
 
 def populate_data():
     # with transaction.atomic():
-    # populate_categories(categories_structure)
-    # populate_brands(brands_list)
-    # populate_colors()
-    # populate_storages()
-    # populate_products(products)
-    # populate_product_attributes()
-    # populate_product_types(categories_structure)
-    # populate_product_type_attributes(product_type_attributes_data)
-    # populate_product_attribute_values(product_attribute_values_data)
-    # save_multiple_product_inventories(products_inventory_data, other_data)
-    # add_banner_images()
+    populate_categories(categories_structure)
+    populate_brands(brands_list)
+    populate_colors()
+    populate_storages()
+    populate_products(products)
+    populate_product_attributes()
+    populate_product_types(categories_structure)
+    populate_product_type_attributes(product_type_attributes_data)
+    populate_product_attribute_values(product_attribute_values_data)
+    save_multiple_product_inventories(products_inventory_data, other_data)
+    add_banner_images()
     # deactivate_categories()
     print("Done")
 
