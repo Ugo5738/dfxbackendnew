@@ -207,18 +207,20 @@ class ProductInventoryDetailSerializer(serializers.ModelSerializer):
     
     def get_variants(self, obj):
         same_type_products = ProductInventory.objects.filter(
-            product_type=obj.product_type
+            product_type=obj.product_type,
+            product=obj.product
         ).select_related('color', 'storage_size')
         
         variant_data = {}
         for product in same_type_products:
-            variant_data.setdefault(
-                product.color.name,
-                {'hex_code': product.color.hex_code, 'available_storage': {}}
-            )['available_storage'].setdefault(
-                product.storage_size.size if product.storage_size else None,
-                product.sku
-            )
+            if product.product.id == obj.product.id:
+                variant_data.setdefault(
+                    product.color.name,
+                    {'hex_code': product.color.hex_code, 'available_storage': {}}
+                )['available_storage'].setdefault(
+                    product.storage_size.size if product.storage_size else None,
+                    product.sku
+                )
             
         return variant_data
 # ----------------------- PRODUCTS DETAIL PAGE -----------------------

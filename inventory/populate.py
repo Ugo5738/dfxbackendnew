@@ -486,7 +486,7 @@ def populate_data():
     populate_product_attribute_values(product_attribute_values_data)
     save_multiple_product_inventories(products_inventory_data, other_data)
     add_banner_images()
-    # deactivate_categories()
+    deactivate_categories()
     print("Done")
 
 
